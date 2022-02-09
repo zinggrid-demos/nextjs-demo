@@ -3,7 +3,7 @@ import useUser from 'lib/useUser'
 import Layout from 'components/Layout'
 import LoginForm from 'components/LoginForm'
 import fetchJson, { FetchError } from 'lib/fetchJson'
-import {anyAdmins} from 'lib/server'
+import {anyAdmins} from 'lib/database'
 
 export default function Login({haveAdmin}) {
   // here we just check if user is already logged in and redirect to profile

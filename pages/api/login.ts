@@ -3,18 +3,19 @@ import type { User } from './user'
 import {withIronSessionApiRoute} from 'iron-session/next'
 import {sessionOptions}  from 'lib/session'
 import {NextApiRequest, NextApiResponse} from 'next'
-import {anyAdmins, getUserByName, createAdmin, setPasswordForUserId} from 'lib/server'
+import {anyAdmins, getUserByName, createAdmin, setPasswordForUserId} from 'lib/database'
 
 export default withIronSessionApiRoute(loginRoute, sessionOptions)
 
 /*
  * Attempt to log in. We first check if there are any admins. 
  * If not, allow any login and make them the admin.
+ *
  * If the user exists, but has no password, log them in and
  * accept the password provided, storing it.
  *
  * Note that we're not doing any encryption of passwords, so
- * this is not a secure solution. The focus of this demo is
+ * this is not a secure solution. The auth* focus of this demo is
  * authorization, not authentication.
  */
 async function loginRoute(req: NextApiRequest, res: NextApiResponse) {

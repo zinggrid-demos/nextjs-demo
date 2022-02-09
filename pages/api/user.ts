@@ -1,7 +1,7 @@
 import {withIronSessionApiRoute} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
 import {NextApiRequest, NextApiResponse} from 'next'
-import {getUserByName} from 'lib/server'
+import {getUserByName} from 'lib/database'
 
 export type User = {
   isLoggedIn?: boolean

@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import useUser from 'lib/useUser'
-import { useRouter } from 'next/router'
+import {useRouter} from 'next/router'
 import Image from 'next/image'
 import fetchJson from 'lib/fetchJson'
 
 export default function Header() {
-  const { user, mutateUser } = useUser()
+  const {user, mutateUser} = useUser()
   const router = useRouter()
 
   return (
@@ -25,45 +25,59 @@ export default function Header() {
             </li>
           )}
           {user?.isLoggedIn === true && (
-            <>
-              <li>
-                <Link href="/profile-sg">
-                  <a>
-                    <span
-                      style={{
-                        marginRight: '.3em',
-                        verticalAlign: 'middle',
-                        borderRadius: '100%',
-                        overflow: 'hidden',
-                      }}
-                    >
-                    {user.username}
-                    </span>
-                    Profile (Static Generation, recommended)
-                  </a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/profile-ssr">
-                  <a>Profile (Server-side Rendering)</a>
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="/api/logout"
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    mutateUser(
-                      await fetchJson('/api/logout', { method: 'POST' }),
-                      false
-                    )
-                    router.push('/login')
-                  }}
-                >
-                  Logout
+            <li>
+              <Link href="/profile-sg">
+                <a>
+                  <span
+                    style={{
+                      marginRight: '.3em',
+                      verticalAlign: 'middle',
+                      overflow: 'hidden',
+                    }}
+                  >
+                  {user.username}
+                  </span>
                 </a>
-              </li>
-            </>
+              </Link>
+            </li>
+          )}
+          {false && user?.isLoggedIn === true && (
+            <li>
+              <Link href="/profile-ssr">
+                <a>Profile (SSR)</a>
+              </Link>
+            </li>
+          )}
+          {user?.isLoggedIn === true && user?.admin == 1 && (
+            <li>
+              <Link href="/users-csr">
+                <a>UsersCSR</a>
+              </Link>
+            </li>
+          )}
+          {user?.isLoggedIn === true && user?.admin == 1 && (
+            <li>
+              <Link href="/users-ssr">
+                <a>UsersSSR</a>
+              </Link>
+            </li>
+          )}
+          {user?.isLoggedIn === true && (
+            <li>
+              <a
+                href="/api/logout"
+                onClick={async (e) => {
+                  e.preventDefault()
+                  mutateUser(
+                    await fetchJson('/api/logout', { method: 'POST' }),
+                    false
+                  )
+                  router.push('/login')
+                }}
+              >
+                Logout
+              </a>
+            </li>
           )}
           <li>
             <a href="https://github.com/zinggrid-demos/nextjs-demo" target="_blank" rel="noreferrer">
