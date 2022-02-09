@@ -19,7 +19,7 @@ export default function Users() {
   return (
     <Layout>
       <h1>Users</h1>
-      {user?.isLoggedIn && user?.admin && (
+      {user?.isLoggedIn && user?.admin == 1 && (
         <>
         <h3>Enter users here and set the highest content rating they're allowed to view. Only the administrator (you)
         can add or remove users. Only users listed here can log in, the first password
@@ -42,7 +42,7 @@ export default function Users() {
         </zing-grid>
         </>
       )}
-      {user?.isLoggedIn && !user?.admin && (
+      {user?.isLoggedIn && user?.admin == 0 && (
         <h2>You must be logged in as the administrator to view this page.</h2>
       )}
     </Layout>
