@@ -4,17 +4,60 @@
  * automatically when it's rendered in the browser.
  * Client-side remix
  */
-import React  from 'react'
+import React, {useEffect}  from 'react'
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
-import 'zinggrid'
+import ZingGrid from 'zinggrid'
 
-import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser} from 'lib/database'
+import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
+  setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
+import {suitabilities} from 'lib/suitabilities'
 
 export default function Users() {
   const {user} = useUser({redirectTo: '/login'})
+
+  /*
+   * Handle the suitability menu
+   */
+  const handleSuitability = (customIndex, domCell, cell) => {
+    const sel = cell.dom().querySelector('select')
+    sel.value = customIndex
+
+    const id = cell.record.id
+
+    sel.addEventListener('change', e => setSuitabilityForUserId(id, e.target.value))
+  }
+
+  /*
+   * Handle the password button
+   */
+  const handlePassword = (customIndex, domCell, cell) => {
+    const msg = cell.dom().querySelector('div span')
+    const btn = cell.dom().querySelector('div button')
+
+    const id = cell.record.id
+
+    btn.onclick = async () => {
+      await setPasswordForUserId(id, '')
+      msg.style.display = ''
+      btn.style.display = 'none'
+    }
+
+    if(!customIndex) {
+      msg.style.display = ''
+      btn.style.display = 'none'
+    } else {
+      msg.style.display = 'none'
+      btn.style.display = ''
+    }
+  }
+
+  useEffect(() => {
+    ZingGrid.registerMethod(handlePassword, "pw")
+    ZingGrid.registerMethod(handleSuitability, "hs")
+  })
 
   return (
     <Layout>
@@ -28,7 +71,17 @@ export default function Users() {
           <zg-colgroup>
             <zg-column index="id" hidden editor="disabled"></zg-column>
             <zg-column index="username" header="User"></zg-column>
-            <zg-column index="suitability" header="Highest Content Rating"></zg-column>
+            <zg-column index="suitability" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
+              <select>
+                {suitabilities.map((x, index) => <option value={x} key={index}>{x}</option>)}
+              </select>
+            </zg-column>
+            <zg-column index="password" header="Password" type="custom" renderer="pw" editor="disabled">
+              <div>
+                <span>No password set</span>
+                <button>Reset password</button>
+              </div>
+            </zg-column>
           </zg-colgroup>
           <zg-data src={remoteDB} adapter="graphql">
             <zg-param name="recordPath" value="data.users"></zg-param>

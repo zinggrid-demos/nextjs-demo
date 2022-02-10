@@ -5,7 +5,8 @@
 import type {User} from '../pages/api/user'
 import {adminSuitability} from './suitabilities'
 
-export const database: string = 'http://localhost:4000/graphql' // URL for the graphql server from our server
+//export const database: string = 'http://localhost:4000/graphql' // URL for the graphql server from our server
+export const database: string = 'http://maya:4000/graphql' // URL for the graphql server from our server
 export const remoteDB: string = 'http://maya:4000/graphql'    // URL for the graphql server from the client
 
 /*
@@ -17,6 +18,7 @@ export const query_readUsers = `
       id
       username
       suitability
+      password
     }
   }
 `
@@ -198,6 +200,32 @@ export async function setPasswordForUserId(id: number, password: string) {
       variables: {
         id: id,
         password: password
+      }
+    })
+  })
+
+  const json = await resp.json()
+}
+
+/*
+ * Given a user id and suitability, update the suitability for that user.
+ */
+export async function setSuitabilityForUserId(id: number, suitability: string) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        mutation updateSuitability($id: Int!, $suitability: String!) {
+          updateUser(id: $id, suitability: $suitability) {
+            id
+          }
+        }`,
+      variables: {
+        id: id,
+        suitability: suitability
       }
     })
   })
