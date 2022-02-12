@@ -27,7 +27,7 @@ export default function Users() {
 
     const id = cell.record.id
 
-    sel.addEventListener('change', e => setSuitabilityForUserId(id, e.target.value))
+    sel.addEventListener('change', e => setSuitabilityForUserId(id, parseInt(e.target.value)))
   }
 
   /*
@@ -73,7 +73,7 @@ export default function Users() {
             <zg-column index="username" header="User"></zg-column>
             <zg-column index="suitability" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
               <select>
-                {suitabilities.map((x, index) => <option value={x} key={index}>{x}</option>)}
+                {suitabilities.map((x, index) => <option value={index} key={index}>{x}</option>)}
               </select>
             </zg-column>
             <zg-column index="password" header="Password" type="custom" renderer="pw" editor="disabled">

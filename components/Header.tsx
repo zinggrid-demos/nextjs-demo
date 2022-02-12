@@ -64,6 +64,20 @@ export default function Header() {
           )}
           {user?.isLoggedIn === true && (
             <li>
+              <Link href="/shows-csr">
+                <a>ShowsCSR</a>
+              </Link>
+            </li>
+          )}
+          {user?.isLoggedIn === true && (
+            <li>
+              <Link href={'/ratings/' + user?.username}>
+                <a>Your Ratings</a>
+              </Link>
+            </li>
+          )}
+          {user?.isLoggedIn === true && (
+            <li>
               <a
                 href="/api/logout"
                 onClick={async (e) => {

@@ -24,11 +24,14 @@ export const query_readUsers = `
 `
 
 /*
- * Query to add an entry to the users table
+ * Query to add an entry to the users table. We
+ * set a default suitability because it's hidden on
+ * the edit form and we assume it will be set from the
+ * table.
  */
 export const query_createUser = `
   mutation {
-    createUser(username:"[[record.username]]", suitability: "[[record.suitability]]", admin: 0) {
+    createUser(username:"[[record.username]]", suitability: 0, admin: 0) {
       id
     }
   }
@@ -39,7 +42,7 @@ export const query_createUser = `
  */
 export const query_updateRowUser = `
   mutation {
-    updateUser(id:[[record.id]], username:"[[record.username]]", suitability: "[[record.suitability]]") {
+    updateUser(id:[[record.id]], username:"[[record.username]]", suitability: [[record.suitability]]) {
       id
     }
   }
@@ -50,7 +53,7 @@ export const query_updateRowUser = `
  */
 export const query_updateCellUser = `
   mutation {
-    updateUser(id:[[record.id]],  username:"[[record.username]]", suitability: "[[record.suitability]]") {
+    updateUser(id:[[record.id]],  username:"[[record.username]]", suitability: [[record.suitability]]) {
       id
     }
   }
@@ -62,6 +65,68 @@ export const query_updateCellUser = `
 export const query_deleteUser = `
   mutation {
     deleteUser(id:[[record.id]]) {
+      success
+    }
+  }
+`
+
+/*
+ * Query to retrieve all shows for the shows table
+ */
+export const query_readShows = `
+  query {
+    shows {
+      id
+      title
+      provider
+      genre
+      seasons
+      suitability
+    }
+  }
+`
+
+/*
+ * Query to add an entry to the shows table.
+ * We set a default suitability since we're hiding it
+ * on the edit form.
+ */
+export const query_createShow = `
+  mutation {
+    createShow(title:"[[record.title]]", seasons:[[record.seasons]], provider:"[[record.provider]]", genre:"[[record.genre]]", suitability: 0) {
+      id
+    }
+  }
+`
+
+/*
+ * Query to update a row in the shows table
+ */
+export const query_updateRowShow = `
+  mutation {
+    updateShow(id:[[record.id]], title:"[[record.title]]", seasons:[[record.seasons]], provider:"[[record.provider]]", genre:"[[record.genre]]") {
+      id
+    }
+  }
+`
+
+/*
+ * Query to update a cell in the shows table
+ */
+export const query_updateCellShow = `
+  mutation {
+    updateShow(id:[[record.id]], title:"[[record.title]]", seasons:[[record.seasons]], provider:"[[record.provider]]", genre:"[[record.genre]]") {
+      id
+    }
+  }
+`
+
+/*
+ * Query to delete a row in the shows table
+ */
+export const query_deleteShow = `
+  mutation {
+    deleteShow(id:[[record.id]]) {
       success
     }
   }
@@ -84,6 +149,32 @@ export async function getUsers() {
   const json = await resp.json()
 
   return json.data.users
+}
+
+/*
+ * Get a list of all usernames
+ */
+export async function getUsernames() {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query {
+          users {
+            username
+          }
+        }
+      `
+    })
+  })
+
+  const json = await resp.json()
+  const list = json.data.users.map(x => x.username)
+
+  return list
 }
 
 /*
@@ -158,7 +249,7 @@ export async function createAdmin(username: string, password: string): User {
     },
     body: JSON.stringify({
       query: `
-        mutation createAdmin($username: String!, $password: String!, $suitability: String!, $admin: Int!) {
+        mutation createAdmin($username: String!, $password: String!, $suitability: Int!, $admin: Int!) {
           createUser(username: $username, password: $password, suitability: $suitability, admin: $admin) {
             id
           }
@@ -207,10 +298,11 @@ export async function setPasswordForUserId(id: number, password: string) {
   const json = await resp.json()
 }
 
+
 /*
  * Given a user id and suitability, update the suitability for that user.
  */
-export async function setSuitabilityForUserId(id: number, suitability: string) {
+export async function setSuitabilityForUserId(id: number, suitability: number) {
   const resp = await fetch(database, {
     method: 'POST',
     headers: {
@@ -218,7 +310,7 @@ export async function setSuitabilityForUserId(id: number, suitability: string) {
     },
     body: JSON.stringify({
       query: `
-        mutation updateSuitability($id: Int!, $suitability: String!) {
+        mutation updateSuitability($id: Int!, $suitability: Int!) {
           updateUser(id: $id, suitability: $suitability) {
             id
           }
@@ -231,4 +323,104 @@ export async function setSuitabilityForUserId(id: number, suitability: string) {
   })
 
   const json = await resp.json()
+}
+
+/*
+ * Given a show id and suitability, update the suitability for that show.
+ */
+export async function setSuitabilityForShowId(id: number, suitability: number) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        mutation updateSuitability($id: Int!, $suitability: Int!) {
+          updateShow(id: $id, suitability: $suitability) {
+            id
+          }
+        }`,
+      variables: {
+        id: id,
+        suitability: suitability
+      }
+    })
+  })
+
+  const json = await resp.json()
+}
+
+/*
+ * Given a username, return their id and suitability
+ */
+async function getIdAndSuitabilityForUsername(username: string) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query getIdAndSuitabilityForUsername($username: String!) {
+          users(where: {username: $username}) {
+            id
+            suitability
+          }
+        }`,
+      variables: {
+        username: username
+      }
+    })
+  })
+
+  const json = await resp.json()
+
+  if(json.data.users.length > 0)
+    return json.data.users[0]
+  else 
+    return {id: null, suitability: null}
+}
+
+/* 
+ * Given a userId and suitability, return all shows that are suitable
+ * along with any ratings that user might have made.
+ */
+async function getSuitableShows(userId: number, suitability: number) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query getSuitableShows($suitability: Int!, $userId: Int!) {
+          shows(where: {suitability: {lte: $suitability}}) {
+            id
+            title
+            ratings(where: {userId: $userId}) {
+              id
+              rating
+            }
+          }
+        }`,
+      variables: {
+        suitability: suitability,
+        userId: userId
+      }
+    })
+  })
+
+  const json = await resp.json()
+  return json.data.shows
+}
+
+/*
+ * Given a username, retrieve the shows they can rate and 
+ * their rating for each show.
+ */
+export async function getShowsAndRatingsForUsername(username: string) {
+  const {id: userId, suitability} = await getIdAndSuitabilityForUsername(username)
+  const shows = await getSuitableShows(userId, suitability)
+  debugger
 }

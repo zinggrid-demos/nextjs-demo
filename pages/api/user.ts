@@ -7,7 +7,7 @@ export type User = {
   isLoggedIn?: boolean
   id?: number
   username: string
-  suitability: string
+  suitability: number
   admin: boolean
 }
 
@@ -31,7 +31,7 @@ async function userRoute(req: NextApiRequest, res: NextApiResponse<User>) {
     res.json({
       isLoggedIn: false,
       username: '',
-      suitability: '',
+      suitability: 0,
       admin: false
     })
   }
