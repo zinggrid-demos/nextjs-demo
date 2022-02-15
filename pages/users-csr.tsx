@@ -4,7 +4,7 @@
  * automatically when it's rendered in the browser.
  * Client-side remix
  */
-import React, {useEffect}  from 'react'
+import React, {useState, useEffect}  from 'react'
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
@@ -13,7 +13,7 @@ import ZingGrid from 'zinggrid'
 
 import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
   setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
-import {suitabilities} from 'lib/suitabilities'
+
 
 export default function Users() {
   const {user} = useUser({redirectTo: '/login'})
@@ -71,9 +71,9 @@ export default function Users() {
           <zg-colgroup>
             <zg-column index="id" hidden editor="disabled"></zg-column>
             <zg-column index="username" header="User"></zg-column>
-            <zg-column index="suitability" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
+            <zg-column index="levelId" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
               <select>
-                {suitabilities.map((x, index) => <option value={index} key={index}>{x}</option>)}
+                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
               </select>
             </zg-column>
             <zg-column index="password" header="Password" type="custom" renderer="pw" editor="disabled">

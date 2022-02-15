@@ -10,7 +10,6 @@ import ZingGrid from 'zinggrid'
 
 import {remoteDB, query_readShows, query_createShow, query_updateRowShow, query_updateCellShow, query_deleteShow,
   setSuitabilityForShowId} from 'lib/database'
-import {suitabilities} from 'lib/suitabilities'
 
 export default function Shows() {
   const {user} = useUser({redirectTo: '/login'})
@@ -46,9 +45,9 @@ export default function Shows() {
             <zg-column index="genre" header="Genre"></zg-column>
             <zg-column index="provider" header="Channel"></zg-column>
             <zg-column index="seasons" header="# of Seasons" type="number"></zg-column>
-            <zg-column index="suitability" header="Content Rating" type="custom" renderer="hs" editor="disabled">
+            <zg-column index="levelId" header="Content Rating" type="custom" renderer="hs" editor="disabled">
               <select>
-                {suitabilities.map((x, index) => <option value={index} key={index}>{x}</option>)}
+                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
               </select>
             </zg-column>
           </zg-colgroup>
