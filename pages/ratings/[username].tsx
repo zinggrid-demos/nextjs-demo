@@ -7,25 +7,108 @@ import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
-//import ZingChart from 'zingchart'
+import {useRouter} from 'next/router'
+import {useRef, useEffect, useState} from 'react'
+import 'zingchart/es6'
+import ZingChart from 'zingchart-react'
+import 'zingchart/modules-es6/zingchart-dragging.min.js'
 
-import {suitabilities} from 'lib/suitabilities'
 import {getUsernames, getShowsAndRatingsForUsername} from 'lib/database'
   
 
-export default function Ratings({username}) {
+//export default function Ratings({shows}) {    SSR
+export default function Ratings() {
+  const {user} = useUser({redirectTo: '/login'})
+
+  const chart = useRef(null)
+  const router = useRouter()
+  const username = router.query.username
+
+  const [shows, setShows] = useState([])    // CSR
+  const haveShows = shows.length > 0
+
+  const config = {
+    type: "vbullet",
+    title: {
+      text: `${username}'s Ratings`,
+    },
+    subtitle: {
+      text: "Drag the bars to enter your ratings",
+    },
+    scaleX: {
+      labels: shows.map((x) => x.title),
+      itemsOverlap: true,
+      maxItems: shows.length,
+      item: {
+        angle: 15
+      }
+    },
+    scaleY: {
+      values: "0:5:1"
+    },
+    tooltip: {
+      borderRadius: "3px",
+      borderWidth: "0px",
+      fontSize: "14px",
+      shadow: true,
+    },
+    series: [
+      {
+        values: shows.map(x => x.ratings.length == 0 ? 0.2 : x.ratings[0].rating),
+        dataDragging: true,
+        rules: [
+          {
+            backgroundColor: "#81c784",
+            rule: "%v < 1",
+          },
+          {
+            backgroundColor: "#ef5350",
+            rule: "%v < 4",
+          },
+          {
+            backgroundColor: "#ffca28",
+            rule: "%v >= 4",
+          }
+        ]
+      }
+    ]
+  }
+
+	/*
+   * Retrieve the data (CSR)
+   */
+  async function getData(username) {
+    setShows(await getShowsAndRatingsForUsername(username))
+  }
+
+  useEffect(() => getData(username))
+
+  /*
+   * Called when a drag is finished, store the ratings in the database
+   */
+  function storeRatings() {
+    const data = chart.current.getseriesdata()
+    console.log(JSON.stringify(data, null, 4))
+  }
 
   return (
     <Layout>
-      <h1>Ratings</h1>
-      {user?.isLoggedIn && (
-        <>
-        <h3>Enter your rating for each of the shows shown below, on a scale of 0 to 5.</h3>
-        <h1>{username}</h1>
-        </>
+      <h1>{username}'s Ratings</h1>
+      {!haveShows && (
+        <h3>There are no shows suitable for your age group.</h3>
       )}
       {!user?.isLoggedIn && (
         <h2>You must be logged in to view this page.</h2>
+      )}
+      {haveShows && user?.isLoggedIn && (
+        <>
+        <h3>Enter your rating for each of the shows shown below, on a scale of 0 to 5.</h3>
+        <ZingChart ref={chart} data={config} height='600px' modules='dragging' zingchart_plugins_dragging_complete={storeRatings} />
+        <pre>
+          {JSON.stringify(shows, null, 4)}
+          {JSON.stringify(user, null, 4)}
+        </pre>
+        </>
       )}
     </Layout>
   )
@@ -35,7 +118,7 @@ export default function Ratings({username}) {
  * Return a list of possible values for username,
  * folded into an array of params: objects.
  */
-export async function getStaticPaths() {
+export async function SSRgetStaticPaths() {
   const users = await getUsernames()
   const paths = users.map(u => ({
     params: {
@@ -52,78 +135,12 @@ export async function getStaticPaths() {
 /* 
  * Fetch the current ratings and shows for params.username
  */
-export async function getStaticProps({params}) {
-  const data = await getShowsAndRatingsForUsername(params.username)
+export async function SSRgetStaticProps({params}) {
+  const shows = await getShowsAndRatingsForUsername(params.username)
 
   return {
     props: {
-      data
+      shows
     }
   }
 }
-
-/*
-import React, {useEffect}  from 'react'
-
-import {remoteDB, query_readShows, query_createShow, query_updateRowShow, query_updateCellShow, query_deleteShow,
-  setSuitabilityForShowId} from 'lib/database'
-
-export default function Shows() {
-  const {user} = useUser({redirectTo: '/login'})
-
-  /*
-   * Handle the suitability menu
-   * /
-  const handleSuitability = (customIndex, domCell, cell) => {
-    const sel = cell.dom().querySelector('select')
-    sel.value = customIndex
-
-    const id = cell.record.id
-
-    sel.addEventListener('change', e => setSuitabilityForShowId(id, parseInt(e.target.value)))
-  }
-
-  useEffect(() => {
-    ZingGrid.registerMethod(handleSuitability, "hs")
-  })
-
-  return (
-    <Layout>
-      <h1>Shows</h1>
-      {user?.isLoggedIn && (
-        <>
-        <h3>Enter shows here and set the parental guideline rating for each. Anyone
-        can add or remove shows. When giving their personal ratings for shows a user
-        will only see shows they're allowed to watch.</h3>
-        <zing-grid context-menu caption="Shows" head-class="grid-header" editor-controls>
-          <zg-colgroup>
-            <zg-column index="id" hidden editor="disabled"></zg-column>
-            <zg-column index="title" header="Title"></zg-column>
-            <zg-column index="genre" header="Genre"></zg-column>
-            <zg-column index="provider" header="Channel"></zg-column>
-            <zg-column index="seasons" header="# of Seasons" type="number"></zg-column>
-            <zg-column index="suitability" header="Content Rating" type="custom" renderer="hs" editor="disabled">
-              <select>
-                {suitabilities.map((x, index) => <option value={index} key={index}>{x}</option>)}
-              </select>
-            </zg-column>
-          </zg-colgroup>
-          <zg-data src={remoteDB} adapter="graphql">
-            <zg-param name="recordPath" value="data.shows"></zg-param>
-            <zg-param name="readBody" value={JSON.stringify({query: query_readShows})}></zg-param>
-            <zg-param name="createBody" value={JSON.stringify({query: query_createShow})}></zg-param>
-            <zg-param name="updateRowBody" value={JSON.stringify({query: query_updateRowShow})}></zg-param>
-            <zg-param name="updateCellBody" value={JSON.stringify({query: query_updateCellShow})}></zg-param>
-            <zg-param name="deleteBody" value={JSON.stringify({query: query_deleteShow})}></zg-param>
-          </zg-data>
-
-        </zing-grid>
-        </>
-      )}
-      {!user?.isLoggedIn && (
-        <h2>You must be logged in to view this page.</h2>
-      )}
-    </Layout>
-  )
-}
-*/

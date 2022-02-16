@@ -390,7 +390,7 @@ async function getIdAndSuitabilityForUsername(username: string) {
           users(where: {username: $username}) {
             id
             level {
-              name
+              rank
             }
           }
         }`,
@@ -401,18 +401,19 @@ async function getIdAndSuitabilityForUsername(username: string) {
   })
 
   const json = await resp.json()
-
   if(json.data.users.length > 0)
-    return {id: json.data.users[0].id, level: json.data.users[0].level.name}
+    return {id: json.data.users[0].id, rank: json.data.users[0].level.rank}
   else 
-    return {id: null, level: null}
+    return {id: null, rank: null}
 }
 
 /* 
- * Given a userId and suitability, return all shows that are suitable
+ * Given a userId and suitability rank, return all shows that are suitable
  * along with any ratings that user might have made.
+ * If we had more control over the graphQL server we could do this with
+ * a simple query, instead we filter the results of the query in JS.
  */
-async function getSuitableShows(userId: number, levelId: number) {
+async function getSuitableShows(userId: number, suitability: number) {
   const resp = await fetch(database, {
     method: 'POST',
     headers: {
@@ -420,10 +421,13 @@ async function getSuitableShows(userId: number, levelId: number) {
     },
     body: JSON.stringify({
       query: `
-        query getSuitableShows($levelId: Int!, $userId: Int!) {
-          shows(where: {suitability: {lte: $suitability}}) {
+        query getSuitableShows($userId: Int!) {
+          shows {
             id
             title
+            level {
+              rank
+            }
             ratings(where: {userId: $userId}) {
               id
               rating
@@ -431,60 +435,26 @@ async function getSuitableShows(userId: number, levelId: number) {
           }
         }`,
       variables: {
-        levelId: levelId,
         userId: userId
       }
     })
   })
 
   const json = await resp.json()
-  return json.data.shows
+  const shows = json.data.shows.filter(x => x.level.rank <= suitability)
+  return shows
 }
 
 /*
  * Given a username, retrieve the shows they can rate and 
  * their rating for each show.
- */
-export async function oldgetShowsAndRatingsForUsername(username: string) {
-  const {id: userId, levelId} = await getIdAndSuitabilityForUsername(username)
-  const shows = await getSuitableShows(userId, levelId)
-  debugger
-}
-
-/* 
- * Given a userId and suitability, return all shows that are suitable
- * along with any ratings that user might have made.
+ *
+ * Since we're using an auto-generated graphQL server, we 
+ * can't add additional resolvers to support doing this as
+ * one query.
  */
 export async function getShowsAndRatingsForUsername(username: string) {
-  const resp = await fetch(database, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      query: `
-        query getShowsAndRatingsForUsername($username: String!) {
-          users(where: {username: $username}) {
-            id
-            level {
-              name
-              shows(where: {level.rank: {lte: rank}}) {
-                id
-                title
-                ratings(where: {userId: id}) {
-                  id
-                  rating
-                }
-              }
-            }
-          }
-        }`,
-      variables: {
-        username: username
-      }
-    })
-  })
-
-  const json = await resp.json()
-  debugger
+  const {id, rank} = await getIdAndSuitabilityForUsername(username)
+  const shows = await getSuitableShows(id, rank)
+  return shows
 }
