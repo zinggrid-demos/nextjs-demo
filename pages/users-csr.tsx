@@ -59,6 +59,10 @@ export default function Users() {
     ZingGrid.registerMethod(handleSuitability, "hs")
   })
 
+/*
+            <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={user?.levels.map(x => x.name).join(',')} />
+*/
+
   return (
     <Layout>
       <h1>Users</h1>
