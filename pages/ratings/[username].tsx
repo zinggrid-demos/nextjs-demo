@@ -9,15 +9,15 @@ import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRouter} from 'next/router'
 import {useRef, useEffect, useState} from 'react'
-import 'zingchart/es6'
+import 'zingchart/es6'    // CSR
+//import 'zingchart'        // SSR
 import ZingChart from 'zingchart-react'
 import 'zingchart/modules-es6/zingchart-dragging.min.js'
 
-import {getUsernames, getShowsAndRatingsForUsername} from 'lib/database'
-  
+import {getUsernames, getShowsAndRatingsForUsername, addRatingForUserAndShow, updateRating} from 'lib/database'
 
-//export default function Ratings({shows}) {    SSR
-export default function Ratings() {
+//export default function Ratings({shows}) {    // SSR
+export default function Ratings() {   // CSR
   const {user} = useUser({redirectTo: '/login'})
 
   const chart = useRef(null)
@@ -27,8 +27,13 @@ export default function Ratings() {
   const [shows, setShows] = useState([])    // CSR
   const haveShows = shows.length > 0
 
+  const min = -0.2        // lowest rating, not zero so we can still grab the bar
+
   const config = {
     type: "vbullet",
+    options: {
+      decimals: 2
+    },
     title: {
       text: `${username}'s Ratings`,
     },
@@ -54,20 +59,20 @@ export default function Ratings() {
     },
     series: [
       {
-        values: shows.map(x => x.ratings.length == 0 ? 0.2 : x.ratings[0].rating),
+        values: shows.map(x => x.ratings.length == 0 ? min : x.ratings[0].rating),
         dataDragging: true,
         rules: [
           {
-            backgroundColor: "#81c784",
+            backgroundColor: "#ef5350",
             rule: "%v < 1",
           },
           {
-            backgroundColor: "#ef5350",
-            rule: "%v < 4",
+            backgroundColor: "#ffca28",
+            rule: "%v >= 1 && %v < 3",
           },
           {
-            backgroundColor: "#ffca28",
-            rule: "%v >= 4",
+            backgroundColor: "#81c784",
+            rule: "%v >= 3",
           }
         ]
       }
@@ -84,11 +89,24 @@ export default function Ratings() {
   useEffect(() => getData(username))
 
   /*
-   * Called when a drag is finished, store the ratings in the database
+   * Called when a drag is finished, store the ratings in the database.
+   * We also adjust the data so that it doesn't exceed the top limit
+   * and doesn't become exactly 0 (which makes it impossible to drag again).
    */
   function storeRatings() {
     const data = chart.current.getseriesdata()
-    console.log(JSON.stringify(data, null, 4))
+
+    data[0].values = data[0].values.map(x => x > 5 ? 5 : (x < 0.1 ? min : x))
+  
+    chart.current.setseriesdata({data})
+
+    // Now either add a new rating or update the existing rating for each show
+    for(const index in shows) {
+      if(shows[index].ratings.length == 0) 
+        addRatingForUserAndShow(user.id, shows[index].id, data[0].values[index])
+      else
+        updateRating(shows[index].ratings[0].id, data[0].values[index])
+    }
   }
 
   return (
@@ -106,6 +124,7 @@ export default function Ratings() {
         <ZingChart ref={chart} data={config} height='600px' modules='dragging' zingchart_plugins_dragging_complete={storeRatings} />
         <pre>
           {JSON.stringify(shows, null, 4)}
+          <br />
           {JSON.stringify(user, null, 4)}
         </pre>
         </>

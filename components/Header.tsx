@@ -63,18 +63,23 @@ export default function Header() {
             </li>
           )}
           {user?.isLoggedIn === true && (
+            <>
             <li>
               <Link href="/shows-csr">
-                <a>ShowsCSR</a>
+                <a>Shows</a>
               </Link>
             </li>
-          )}
-          {user?.isLoggedIn === true && (
             <li>
               <Link href={'/ratings/' + user?.username}>
                 <a>Your Ratings</a>
               </Link>
             </li>
+            <li>
+              <Link href="/summary">
+                <a>Summary</a>
+              </Link>
+            </li>
+            </>
           )}
           {user?.isLoggedIn === true && (
             <li>

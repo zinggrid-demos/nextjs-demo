@@ -458,3 +458,162 @@ export async function getShowsAndRatingsForUsername(username: string) {
   const shows = await getSuitableShows(id, rank)
   return shows
 }
+
+/*
+ * Given a user id and a show id, create a rating
+ */
+export async function addRatingForUserAndShow(userId, showId, rating) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        mutation createRating($userId: Int!, $showId: Int!, $rating: Float!) {
+          createRating(userId: $userId, showId: $showId, rating: $rating) {
+            id
+          }
+        }`,
+      variables: {
+        userId: userId,
+        showId: showId,
+        rating: rating
+      }
+    })
+  })
+
+  const json = await resp.json()
+  debugger
+  return json.data.createRating.id
+}
+
+/*
+ * Given an existing rating id, update the rating value
+ */
+export async function updateRating(id, rating) {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        mutation updateRating($id: Int!, $rating: Float!) {
+          updateRating(id: $id, rating: $rating) {
+            id
+          }
+        }`,
+      variables: {
+        id: id,
+        rating: rating
+      }
+    })
+  })
+
+  const json = await resp.json()
+}
+
+/*
+ * Return a list of users and whether or not they've entered any
+ * ratings.
+ */
+export async function getHasRated() {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query {
+          users {
+            username
+            ratings {
+              rating
+            }
+          }
+        }
+      `
+    })
+  })
+
+  const json = await resp.json()
+  return json.data.users.map(x => ({username: x.username, rated: x.ratings.length > 0}))
+}
+
+/* 
+ * Return the average of an array of numbers
+ */
+function avg(x) {
+  if(x.length)
+    return x.reduce((accum, value) => accum + value, 0) / x.length
+  else 
+    return 0
+}
+
+/*
+ * Return the average rating by show
+ */
+export async function getAvgRatings() {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query {
+          shows {
+            title
+            ratings {
+              rating
+            }
+          }
+        }
+      `
+    })
+  })
+
+  const json = await resp.json()
+  return json.data.shows.map(x => ({show: x.title, rating: avg(x.ratings.map(y => y.rating))}))
+}
+
+/*
+ * Return the ratings for each show by user
+ */
+export async function getRatings() {
+  const resp = await fetch(database, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: `
+        query {
+          shows {
+            title
+          }
+          users {
+            username
+            ratings {
+              rating
+              show {
+                title
+              }
+            }
+          }
+        }
+      `
+    })
+  })
+
+  const json = await resp.json()
+  return {
+    shows: json.data.shows.map(x => x.title),
+    users: json.data.users.map(x => ({
+      username: x.username,
+      ratings: Object.fromEntries(x.ratings.map(y => [y.show.title, y.rating]))
+    }))
+  }
+}
