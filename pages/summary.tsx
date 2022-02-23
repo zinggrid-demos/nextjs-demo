@@ -50,10 +50,17 @@ export default function Summary() {   // CSR
         y: '0px'
       }),
       radar(ratings.shows, radarSeries(ratings.shows, ratings.users), {
+        title: {
+          text: 'Ratings'
+        },
         height: '50%',
         width: '30%',
         x: '0%',
-        y: '50%'
+        y: '40%',
+        legend: {
+          align: 'center',
+          verticalAlign: 'bottom'
+        },
       })
     ]
   }
@@ -65,7 +72,6 @@ export default function Summary() {   // CSR
     layout: `${smRows}x${smCols}`,
     graphset: radarSMgraphset(ratings.shows, ratings.users)
   }
-   debugger
 
 	/*
    * Retrieve the data (CSR)
@@ -113,6 +119,9 @@ function gauge(raters, addons) {
   return {
     ...addons,
     type: 'gauge',      // gauge indicating how many users have entered ratings
+    title: {
+      text: 'Participation'
+    },
     globals: {
       fontSize: 25
     },
@@ -124,7 +133,8 @@ function gauge(raters, addons) {
       valueBox: {
         placement: 'center',
         text: '%v%',
-        fontSize: 35,
+        fontColor: '#666666',
+        fontSize: 20,
         rules: [
           {
             rule: '%v >= 90',
@@ -270,7 +280,7 @@ function radarSMgraphset(shows, users) {
     values: shows.map(s => u.ratings[s] || 0),
     backgroundColor: colors[index]
   }], {
-    title: u.username
+    title: {text: u.username}
   } ))
 }
 
@@ -284,37 +294,27 @@ function radar(shows, series, addons) {
     ...addons,
     type: 'radar',
     plot: {
-      aspect: 'area',
+      aspect: 'rose',
+      tooltip: {
+        text: "%kt: %v"
+      }
     },
     scaleV: {
+      values: '0:5:1',
       visible: false,
     },
     scaleK: {
       values: `0:${shows.length-1}:1`,
       labels: shows,
+      aspect: 'circle',
       guide: {
         alpha: 0.3,
-        backgroundColor: '#c5c5c5 #718eb4',
         lineColor: '#607D8B',
         lineStyle: 'solid',
       },
       item: {
-        backgroundColor: 'white',
-        borderColor: '#aeaeae',
-        borderRadius: '10px',
-        borderWidth: '1px',
-        fontColor: '#607D8B',
-        padding: '5 10',
-      },
-      refLine: {
-        lineColor: '#c10000',
-      },
-      tick: {
-        lineColor: '#59869c',
-        lineWidth: '2px',
-        lineStyle: 'dotted',
-        size: 20,
-      },
+        alpha: 0
+      }
     },
     series: series
   }

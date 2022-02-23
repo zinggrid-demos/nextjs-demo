@@ -60,8 +60,17 @@ export default function Users() {
   })
 
 /*
-            <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={user?.levels.map(x => x.name).join(',')} />
+            <zg-column index="levelId" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
+              <select>
+                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
+              </select>
+            </zg-column>
+
+            <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={levelOpts} />
 */
+
+	// name:value: pairs for the type-select-options attribute below
+  const levelOpts = JSON.stringify(user?.levels.map(x => ({name: x.name, value: x.id})))
 
   return (
     <Layout>
