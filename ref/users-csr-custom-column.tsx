@@ -19,6 +19,18 @@ export default function Users() {
   const {user} = useUser({redirectTo: '/login'})
 
   /*
+   * Handle the suitability menu
+   */
+  const handleSuitability = (customIndex, domCell, cell) => {
+    const sel = cell.dom().querySelector('select')
+    sel.value = customIndex
+
+    const id = cell.record.id
+
+    sel.addEventListener('change', e => setSuitabilityForUserId(id, parseInt(e.target.value)))
+  }
+
+  /*
    * Handle the password button
    */
   const handlePassword = (customIndex, domCell, cell) => {
@@ -42,29 +54,24 @@ export default function Users() {
     }
   }
 
-  const hasNullPassword = (pw) => !pw
-
   useEffect(() => {
     ZingGrid.registerMethod(handlePassword, "pw")
-    //ZingGrid.registerMethod(hasNullPassword, "pw")
+    ZingGrid.registerMethod(handleSuitability, "hs")
   })
 
-	// name:value: pairs for the type-select-options attribute below
-  const levelOpts = JSON.stringify(user?.levels?.map(x => ({name: x.name, value: x.id})))
-
-							/*
-            <zg-column index="password" header="Password" type="custom" editor="disabled" renderer="pw">
-              <div>
-                <span>No password set</span>
-                <button>Reset password</button>
-              </div>
+/*
+            <zg-column index="levelId" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
+              <select>
+                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
+              </select>
             </zg-column>
 
-            <zg-column index="password" header="Password" type="button" editor="disabled" type-button-label="Reset password" type-button-disabled="[[!record.password]]" />
-            <zg-column index="password" header="Password" type="button" editor="disabled" type-button-label="Reset password" type-button-disabled="[[record.password]]" />
+            <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={levelOpts} />
+*/
 
-            <zg-column index="password" header="Password" type="button" editor="disabled" renderer="pw" type-button-label="Reset password" type-button-disabled="[[record.password]]" />
-              */
+	// name:value: pairs for the type-select-options attribute below
+  const levelOpts = JSON.stringify(user?.levels.map(x => ({name: x.name, value: x.id})))
+
   return (
     <Layout>
       <h1>Users</h1>
@@ -78,7 +85,7 @@ export default function Users() {
             <zg-column index="id" hidden editor="disabled"></zg-column>
             <zg-column index="username" header="User"></zg-column>
             <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={levelOpts} />
-            <zg-column index="password" header="Password" type="custom" editor="disabled" renderer="pw">
+            <zg-column index="password" header="Password" type="custom" renderer="pw" editor="disabled">
               <div>
                 <span>No password set</span>
                 <button>Reset password</button>

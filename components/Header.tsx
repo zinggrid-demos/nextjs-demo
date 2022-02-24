@@ -41,7 +41,7 @@ export default function Header() {
               </Link>
             </li>
           )}
-          {false && user?.isLoggedIn === true && (
+          {user?.isLoggedIn === true && (
             <li>
               <Link href="/profile-ssr">
                 <a>Profile (SSR)</a>

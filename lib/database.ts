@@ -5,7 +5,7 @@
 import type {User} from '../pages/api/user'
 
 //export const database: string = 'http://localhost:4000/graphql' // URL for the graphql server from our server
-export const database: string = 'http://maya:4000/graphql' // URL for the graphql server from our server
+export const database: string = 'http://maya:4000/graphql'    // URL for the graphql server from our server
 export const remoteDB: string = 'http://maya:4000/graphql'    // URL for the graphql server from the client
 
 /*
@@ -23,14 +23,11 @@ export const query_readUsers = `
 `
 
 /*
- * Query to add an entry to the users table. We
- * set a default suitability level because it's hidden on
- * the edit form and we assume it will be set from the
- * table.
+ * Query to add an entry to the users table.
  */
 export const query_createUser = `
   mutation {
-    createUser(username:"[[record.username]]", levelId: 0, admin: 0) {
+    createUser(username:"[[record.username]]", levelId: [[record.levelId]], admin: 0) {
       id
     }
   }
@@ -87,12 +84,10 @@ export const query_readShows = `
 
 /*
  * Query to add an entry to the shows table.
- * We set a default suitability level since we're hiding it
- * on the edit form.
  */
 export const query_createShow = `
   mutation {
-    createShow(title:"[[record.title]]", seasons:[[record.seasons]], provider:"[[record.provider]]", genre:"[[record.genre]]", levelId: 0) {
+    createShow(title:"[[record.title]]", seasons:[[record.seasons]], provider:"[[record.provider]]", genre:"[[record.genre]]", levelId: [[record.levelId]]) {
       id
     }
   }
@@ -281,7 +276,7 @@ export async function createAdmin(username: string, password: string): User {
       variables: {
         username: username,
         password: password,
-        levelId: 0,
+        levelId: 1,
         admin: 1
       }
     })
@@ -290,7 +285,7 @@ export async function createAdmin(username: string, password: string): User {
   const json = await resp.json()
   return {
     username,
-    levelId: 0,
+    levelId: 1,
     admin: true,
     id: json.data.createUser.id
   }

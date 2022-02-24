@@ -1,7 +1,7 @@
 /* 
  * Table for adding/removing shows, visible to all logged-in users.
  */
-import React, {useEffect}  from 'react'
+import React from 'react'
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
@@ -14,21 +14,8 @@ import {remoteDB, query_readShows, query_createShow, query_updateRowShow, query_
 export default function Shows() {
   const {user} = useUser({redirectTo: '/login'})
 
-  /*
-   * Handle the suitability menu
-   */
-  const handleSuitability = (customIndex, domCell, cell) => {
-    const sel = cell.dom().querySelector('select')
-    sel.value = customIndex
-
-    const id = cell.record.id
-
-    sel.addEventListener('change', e => setSuitabilityForShowId(id, parseInt(e.target.value)))
-  }
-
-  useEffect(() => {
-    ZingGrid.registerMethod(handleSuitability, "hs")
-  })
+	// name:value: pairs for the type-select-options attribute below
+  const levelOpts = JSON.stringify(user?.levels?.map(x => ({name: x.name, value: x.id})))
 
   return (
     <Layout>
@@ -45,11 +32,7 @@ export default function Shows() {
             <zg-column index="genre" header="Genre"></zg-column>
             <zg-column index="provider" header="Channel"></zg-column>
             <zg-column index="seasons" header="# of Seasons" type="number"></zg-column>
-            <zg-column index="levelId" header="Content Rating" type="custom" renderer="hs" editor="disabled">
-              <select>
-                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
-              </select>
-            </zg-column>
+            <zg-column index="levelId" header="Content Rating" type="select" type-select-options={levelOpts} />
           </zg-colgroup>
           <zg-data src={remoteDB} adapter="graphql">
             <zg-param name="recordPath" value="data.shows"></zg-param>

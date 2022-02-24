@@ -20,13 +20,12 @@ const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'cyan', 'orange']
 /* 
  * The Summary component
  */
-//export default function Summary({shows}) {    // SSR
+//export default function Summary({hasRated, avgRatings, ratings}) {    // SSR
 export default function Summary() {   // CSR
   const {user} = useUser({redirectTo: '/login'})
 
   const chart = useRef(null)
 
-  const [shows, setShows] = useState([])    // CSR
   const [hasRated, setHasRated] = useState([])  //CSR
   const [avgRatings, setAvgRatings] = useState([])  //CSR
   const [ratings, setRatings] = useState({shows: [], users: []})  //CSR
@@ -324,9 +323,11 @@ function radar(shows, series, addons) {
  * Get the data needed to render this page.
  */
 export const SSRgetServerSideProps = withIronSessionSsr(async function ({req, res}) {
-  const users = await getUsers()
-
-  return {
-    props: {users}
+  const props = {
+    hasRated: await getHasRated(),
+    avgRatings: await getAvgRatings(),
+    ratings: await getRatings()
   }
+
+  return {props}
 }, sessionOptions)
