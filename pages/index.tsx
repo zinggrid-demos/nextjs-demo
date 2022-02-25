@@ -5,6 +5,7 @@ import useUser from 'lib/useUser'
 
 export default function Home() {
   const {user} = useUser()
+
   return (
     <Layout>
       <h1>
@@ -38,7 +39,7 @@ export default function Home() {
 			<h2>Links</h2>
 
       <ul>
-        {user?.isLoggedIn === false && (
+        {(!user || user?.isLoggedIn === false) && (
           <li>
             <Link href="/login">
               <a>Login</a>
