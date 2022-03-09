@@ -14,7 +14,7 @@ import 'zingchart/modules-es6/zingchart-dragging.min.js'
 import {getHasRated, getAvgRatings, getRatings} from 'lib/database'
 
 
-// Set of colors for radara charts
+// Set of colors for radar charts
 const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'cyan', 'orange']
 
 /* 

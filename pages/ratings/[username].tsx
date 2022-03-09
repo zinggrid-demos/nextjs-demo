@@ -22,12 +22,15 @@ export default function Ratings() {   // CSR
 
   const chart = useRef(null)
   const router = useRouter()
-  const username = router.query.username
+  const username = router.query.username    
 
   const [shows, setShows] = useState([])    // CSR
+  const [readonly, setReadonly] = useState(false)
+
   const haveShows = shows.length > 0
 
   const min = -0.2        // lowest rating, not zero so we can still grab the bar
+  const subtitle = readonly ? '' : 'Drag the bars to enter your ratings'
 
   const config = {
     type: "vbullet",
@@ -38,7 +41,7 @@ export default function Ratings() {   // CSR
       text: `${username}'s Ratings`,
     },
     subtitle: {
-      text: "Drag the bars to enter your ratings",
+      text: subtitle,
     },
     scaleX: {
       labels: shows.map((x) => x.title),
@@ -60,7 +63,7 @@ export default function Ratings() {   // CSR
     series: [
       {
         values: shows.map(x => x.ratings.length == 0 ? min : x.ratings[0].rating),
-        dataDragging: true,
+        dataDragging: !readonly,
         rules: [
           {
             backgroundColor: "#ef5350",
@@ -93,19 +96,40 @@ export default function Ratings() {   // CSR
    * We also adjust the data so that it doesn't exceed the top limit
    * and doesn't become exactly 0 (which makes it impossible to drag again).
    */
-  function storeRatings() {
+  function dragComplete() {
     const data = chart.current.getseriesdata()
 
     data[0].values = data[0].values.map(x => x > 5 ? 5 : (x < 0.1 ? min : x))
   
     chart.current.setseriesdata({data})
+    storeRatings(data[0].values)
+  }
 
-    // Now either add a new rating or update the existing rating for each show
+  /*
+   * Compute a random value for each rating.
+   * Note that we round each value to 2 decimal places.
+   */
+  function shuffle() {
+    const data = chart.current.getseriesdata()
+  
+    for(const i in data[0].values)
+      data[0].values[i] = Math.round(((Math.random() * 4.5) + 0.3) * 100)/100
+  
+    chart.current.setseriesdata({data})
+    storeRatings(data[0].values)
+  }
+
+  /*
+   * Either add a new rating or update the existing rating for each show.
+   * This will only be called if !readonly, so we know the user is the
+   * logged in user.
+   */
+  function storeRatings(values) {
     for(const index in shows) {
       if(shows[index].ratings.length == 0) 
-        addRatingForUserAndShow(user.id, shows[index].id, data[0].values[index])
+        addRatingForUserAndShow(user.id, shows[index].id, values[index])
       else
-        updateRating(shows[index].ratings[0].id, data[0].values[index])
+        updateRating(shows[index].ratings[0].id, values[index])
     }
   }
 
@@ -118,10 +142,15 @@ export default function Ratings() {   // CSR
       {!user?.isLoggedIn && (
         <h2>You must be logged in to view this page.</h2>
       )}
+      {haveShows && user?.isLoggedIn && readonly && (
+        <h3>Rated on a scale of 0 to 5</h3>
+      )}
+      {haveShows && user?.isLoggedIn && !readonly && (
+        <h3>Enter your rating for each of the shows shown below, on a scale of 0 to 5 <button onClick={shuffle}>Randomize</button></h3>
+      )}
       {haveShows && user?.isLoggedIn && (
         <>
-        <h3>Enter your rating for each of the shows shown below, on a scale of 0 to 5.</h3>
-        <ZingChart ref={chart} data={config} height='600px' modules='dragging' zingchart_plugins_dragging_complete={storeRatings} />
+        <ZingChart ref={chart} data={config} height='600px' modules='dragging' zingchart_plugins_dragging_complete={dragComplete} />
         <pre>
           {JSON.stringify(shows, null, 4)}
           <br />
