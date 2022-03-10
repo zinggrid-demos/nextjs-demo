@@ -13,7 +13,7 @@ import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 
 import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
-  setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
+  getUsers, setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
 
 
 export default function Users({users}) {
@@ -96,14 +96,9 @@ export default function Users({users}) {
  * Maybe we need an empty function here to trigger SSR?
  */
 export const getServerSideProps = withIronSessionSsr(async function ({req, res}) {
-  /*
   const users = await getUsers()
 
   return {
     props: {users}
-  }
-  */
-  return {
-    props: {users: 'not needed'}
   }
 }, sessionOptions)
