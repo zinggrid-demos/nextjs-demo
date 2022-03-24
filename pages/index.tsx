@@ -36,42 +36,6 @@ export default function Home() {
         their individual ratings.
       </p>
 
-			<h2>Links</h2>
-
-      <ul>
-        {(!user || user?.isLoggedIn === false) && (
-          <li>
-            <Link href="/login">
-              <a>Login</a>
-            </Link>
-          </li>
-        )}
-        {user?.isLoggedIn === true && (
-          <li>
-            <Link href="/profile-sg">
-              <a>
-                <span
-                  style={{
-                    marginRight: '.3em',
-                    verticalAlign: 'middle',
-                    overflow: 'hidden',
-                  }}
-                >
-                {user.username}
-                </span>
-              </a>
-            </Link>
-          </li>
-        )}
-        {user?.isLoggedIn === true && (
-          <li>
-            <Link href="/profile-ssr">
-              <a>Profile (SSR)</a>
-            </Link>
-          </li>
-        )}
-      </ul>
-
       <style jsx>{`
         li {
           margin-bottom: 0.5rem;

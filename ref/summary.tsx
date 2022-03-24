@@ -6,7 +6,8 @@ import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRef, useEffect, useState} from 'react'
-import 'zingchart/es6'  
+import 'zingchart/es6'    // CSR
+//import 'zingchart'        // SSR
 import ZingChart from 'zingchart-react'
 import 'zingchart/modules-es6/zingchart-dragging.min.js'
 
@@ -19,14 +20,15 @@ const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'cyan', 'orange']
 /* 
  * The Summary component
  */
-export default function Summary() {  
+export default function Summary() {   // CSR
+//export default function Summary({hasRated, avgRatings, ratings}) {    // SSR
   const {user} = useUser({redirectTo: '/login'})
 
   const chart = useRef(null)
 
-  const [hasRated, setHasRated] = useState([]) 
-  const [avgRatings, setAvgRatings] = useState([]) 
-  const [ratings, setRatings] = useState({shows: [], users: []}) 
+  const [hasRated, setHasRated] = useState([])  //CSR
+  const [avgRatings, setAvgRatings] = useState([])  //CSR
+  const [ratings, setRatings] = useState({shows: [], users: []})  //CSR
 
 	// What percentage of users have entered ratings
   const percentRated = Math.round(hasRated.reduce((accum, x) => accum + (x.rated ? 1 : 0), 0) * 100 / hasRated.length)
@@ -92,6 +94,16 @@ export default function Summary() {
         <ZingChart data={config} height="600px" />
         <br />
         <ZingChart data={config2} height="600px" />
+        <pre>
+          hasRated:&nbsp;
+          {JSON.stringify(hasRated, null, 4)}
+          <br />
+          avgRatings:&nbsp;
+          {JSON.stringify(avgRatings, null, 4)}
+          <br />
+          ratings:&nbsp;
+          {JSON.stringify(ratings, null, 4)}
+        </pre>
         </>
       )}
     </Layout>
@@ -188,7 +200,7 @@ function gauge(raters, addons) {
       {
         values: [raters],
         backgroundColor: 'black',
-        indicator: [5, 5, 5, 5, 0.55]
+        indicator: [10, 10, 10, 10, 0.75]
       }
     ]
   }
@@ -306,3 +318,16 @@ function radar(shows, series, addons) {
     series: series
   }
 }
+
+/* 
+ * Get the data needed to render this page.
+ */
+export const SSRgetServerSideProps = withIronSessionSsr(async function ({req, res}) {
+  const props = {
+    hasRated: await getHasRated(),
+    avgRatings: await getAvgRatings(),
+    ratings: await getRatings()
+  }
+
+  return {props}
+}, sessionOptions)

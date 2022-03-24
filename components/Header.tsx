@@ -26,7 +26,7 @@ export default function Header() {
           )}
           {user?.isLoggedIn === true && (
             <li>
-              <Link href="/profile-sg">
+              <Link href="/profile-ssr">
                 <a>
                   <span
                     style={{
@@ -41,31 +41,17 @@ export default function Header() {
               </Link>
             </li>
           )}
-          {user?.isLoggedIn === true && (
-            <li>
-              <Link href="/profile-ssr">
-                <a>Profile (SSR)</a>
-              </Link>
-            </li>
-          )}
           {user?.isLoggedIn === true && user?.admin == 1 && (
             <li>
-              <Link href="/users-csr">
-                <a>UsersCSR</a>
-              </Link>
-            </li>
-          )}
-          {user?.isLoggedIn === true && user?.admin == 1 && (
-            <li>
-              <Link href="/users-ssr">
-                <a>UsersSSR</a>
+              <Link href="/users">
+                <a>Users</a>
               </Link>
             </li>
           )}
           {user?.isLoggedIn === true && (
             <>
             <li>
-              <Link href="/shows-csr">
+              <Link href="/shows">
                 <a>Shows</a>
               </Link>
             </li>
@@ -136,6 +122,11 @@ export default function Header() {
 
         a img {
           margin-right: 1em;
+        }
+
+        a:hover {
+          text-decoration: underline;
+          color: yellow;
         }
 
         header {

@@ -2,6 +2,8 @@
  * Bar chart for rating shows, visible to all logged-in users.
  * Only the shows suitable for this user will be included in the
  * chart.
+ * 
+ * SSR version, not working
  */
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
@@ -9,20 +11,21 @@ import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRouter} from 'next/router'
 import {useRef, useEffect, useState} from 'react'
-import 'zingchart/es6'
+//import 'zingchart/es6'
+import 'zingchart6'
 import ZingChart from 'zingchart-react'
 import 'zingchart/modules-es6/zingchart-dragging.min.js'
 
 import {getUsernames, getShowsAndRatingsForUsername, addRatingForUserAndShow, updateRating} from 'lib/database'
 
-export default function Ratings() {  
+export default function Ratings({shows}) {  
   const {user} = useUser({redirectTo: '/login'})
 
   const chart = useRef(null)
   const router = useRouter()
   const username = router.query.username    
 
-  const [shows, setShows] = useState([])  
+  //const [shows, setShows] = useState([])    // CSR
   const [readonly, setReadonly] = useState(false)
 
   const haveShows = shows.length > 0
@@ -151,4 +154,35 @@ export default function Ratings() {
       )}
     </Layout>
   )
+}
+
+/*
+ * Return a list of possible values for username,
+ * folded into an array of params: objects.
+ */
+export async function getStaticPaths() {
+  const users = await getUsernames()
+  const paths = users.map(u => ({
+    params: {
+      username: u
+    }
+  }))
+
+  return {
+    paths,
+    fallback: false
+  }
+}
+
+/* 
+ * Fetch the current ratings and shows for params.username
+ */
+export async function getStaticProps({params}) {
+  const shows = await getShowsAndRatingsForUsername(params.username)
+
+  return {
+    props: {
+      shows
+    }
+  }
 }

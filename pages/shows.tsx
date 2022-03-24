@@ -25,7 +25,8 @@ export default function Shows() {
         <h3>Enter shows here and set the parental guideline rating for each. Anyone
         can add or remove shows. When giving their personal ratings for shows a user
         will only see shows they're allowed to watch.</h3>
-        <zing-grid context-menu caption="Shows" head-class="grid-header" editor-controls>
+        <zing-grid context-menu caption="Shows" head-class="grid-header" 
+          editor-controls loading loading-text="Loading ...">
           <zg-colgroup>
             <zg-column index="id" hidden editor="disabled"></zg-column>
             <zg-column index="title" header="Title"></zg-column>
