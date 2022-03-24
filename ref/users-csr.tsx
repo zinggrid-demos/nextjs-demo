@@ -1,10 +1,10 @@
 /* 
  * Table for adding/removing users, visible only to the admin.
- * The properties are obtained server-side, the ZingGrid is
- * rendered client-side. The data for the grid is obtained
- * via GraphQL..
+ * This is a statically rendered ZingGrid that will be hydrated
+ * automatically when it's rendered in the browser.
+ * Client-side remix
  */
-import React, {useEffect} from 'react'
+import React, {useState, useEffect}  from 'react'
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
@@ -12,10 +12,10 @@ import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 
 import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
-  getUsers, setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
+  setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
 
 
-export default function Users({users}) {
+export default function Users() {
   const {user} = useUser({redirectTo: '/login'})
 
   /*
@@ -46,11 +46,25 @@ export default function Users({users}) {
 
   useEffect(() => {
     ZingGrid.registerMethod(handlePassword, "pw")
+    //ZingGrid.registerMethod(hasNullPassword, "pw")
   })
 
 	// name:value: pairs for the type-select-options attribute below
   const levelOpts = JSON.stringify(user?.levels?.map(x => ({name: x.name, value: x.id})))
 
+							/*
+            <zg-column index="password" header="Password" type="custom" editor="disabled" renderer="pw">
+              <div>
+                <span>No password set</span>
+                <button>Reset password</button>
+              </div>
+            </zg-column>
+
+            <zg-column index="password" header="Password" type="button" editor="disabled" type-button-label="Reset password" type-button-disabled="[[!record.password]]" />
+            <zg-column index="password" header="Password" type="button" editor="disabled" type-button-label="Reset password" type-button-disabled="[[record.password]]" />
+
+            <zg-column index="password" header="Password" type="button" editor="disabled" renderer="pw" type-button-label="Reset password" type-button-disabled="[[record.password]]" />
+              */
   return (
     <Layout>
       <h1>Users</h1>
@@ -89,14 +103,3 @@ export default function Users({users}) {
     </Layout>
   )
 }
-
-/*
- * Get the users table server-side.
- */
-export const getServerSideProps = withIronSessionSsr(async function ({req, res}) {
-  const users = await getUsers()
-
-  return {
-    props: {users}
-  }
-}, sessionOptions)

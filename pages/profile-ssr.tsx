@@ -1,3 +1,6 @@
+/*
+ * Profile of the logged-in user, rendered server-side
+ */
 import React from 'react'
 import Layout from 'components/Layout'
 import { withIronSessionSsr } from 'iron-session/next'
@@ -11,34 +14,34 @@ export default function SsrProfile({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <Layout>
-      <h1>Your GitHub profile</h1>
-      <h2>
-        This page uses{' '}
-        <a href="https://nextjs.org/docs/basic-features/pages#server-side-rendering">
-          Server-side Rendering (SSR)
-        </a>{' '}
-        and{' '}
-        <a href="https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props">
-          getServerSideProps
-        </a>
-      </h2>
-
-      {user?.isLoggedIn && (
+      <h1>{user?.username}'s profile</h1>
+      {user && (
         <>
-          <p style={{ fontStyle: 'italic' }}>
-            Public data, from{' '}
-            <a href={`https://github.com/${user.login}`}>
-              https://github.com/{user.login}
-            </a>
-            , reduced to `login` and `avatar_url`.
-          </p>
-          <pre>{JSON.stringify(user, null, 2)}</pre>
+          <span className="label">Username: </span>
+          <span className="value">{user.username}</span>
+          <br />
+          <span className="label">Administrator?: </span>
+          <span className="value">{user.admin == 1 ? 'yes' : 'no'}</span>
         </>
       )}
+
+      <style jsx>{`
+        .label {
+          font-size: 110%;
+        }
+
+        .value {
+          font-size: 110%;
+          font-weight: bold;
+        }
+      `}</style>
     </Layout>
   )
 }
 
+/*
+ * Retrieve the props for this component, server-side.
+ */
 export const getServerSideProps = withIronSessionSsr(async function ({
   req,
   res,
@@ -51,13 +54,13 @@ export const getServerSideProps = withIronSessionSsr(async function ({
     res.end()
     return {
       props: {
-        user: { isLoggedIn: false, login: '', avatarUrl: '' } as User,
+        user: {isLoggedIn: false, username: '', admin: 0} as User,
       },
     }
   }
 
   return {
-    props: { user: req.session.user },
+    props: {user},
   }
 },
 sessionOptions)

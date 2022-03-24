@@ -17,7 +17,7 @@ export default function Header() {
               <a>Home</a>
             </Link>
           </li>
-          {user?.isLoggedIn === false && (
+          {(!user || user?.isLoggedIn === false) && (
             <li>
               <Link href="/login">
                 <a>Login</a>
@@ -26,7 +26,7 @@ export default function Header() {
           )}
           {user?.isLoggedIn === true && (
             <li>
-              <Link href="/profile-sg">
+              <Link href="/profile-ssr">
                 <a>
                   <span
                     style={{
@@ -41,26 +41,31 @@ export default function Header() {
               </Link>
             </li>
           )}
-          {false && user?.isLoggedIn === true && (
+          {user?.isLoggedIn === true && user?.admin == 1 && (
             <li>
-              <Link href="/profile-ssr">
-                <a>Profile (SSR)</a>
+              <Link href="/users">
+                <a>Users</a>
               </Link>
             </li>
           )}
-          {user?.isLoggedIn === true && user?.admin == 1 && (
+          {user?.isLoggedIn === true && (
+            <>
             <li>
-              <Link href="/users-csr">
-                <a>UsersCSR</a>
+              <Link href="/shows">
+                <a>Shows</a>
               </Link>
             </li>
-          )}
-          {user?.isLoggedIn === true && user?.admin == 1 && (
             <li>
-              <Link href="/users-ssr">
-                <a>UsersSSR</a>
+              <Link href={'/ratings/' + user?.username}>
+                <a>Your Ratings</a>
               </Link>
             </li>
+            <li>
+              <Link href="/summary">
+                <a>Summary</a>
+              </Link>
+            </li>
+            </>
           )}
           {user?.isLoggedIn === true && (
             <li>
@@ -117,6 +122,11 @@ export default function Header() {
 
         a img {
           margin-right: 1em;
+        }
+
+        a:hover {
+          text-decoration: underline;
+          color: yellow;
         }
 
         header {

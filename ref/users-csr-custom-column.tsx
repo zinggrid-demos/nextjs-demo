@@ -1,10 +1,10 @@
 /* 
  * Table for adding/removing users, visible only to the admin.
- * The properties are obtained server-side, the ZingGrid is
- * rendered client-side. The data for the grid is obtained
- * via GraphQL..
+ * This is a statically rendered ZingGrid that will be hydrated
+ * automatically when it's rendered in the browser.
+ * Client-side remix
  */
-import React, {useEffect} from 'react'
+import React, {useState, useEffect}  from 'react'
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'
 import {sessionOptions} from 'lib/session'
@@ -12,11 +12,23 @@ import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 
 import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
-  getUsers, setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
+  setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
 
 
-export default function Users({users}) {
+export default function Users() {
   const {user} = useUser({redirectTo: '/login'})
+
+  /*
+   * Handle the suitability menu
+   */
+  const handleSuitability = (customIndex, domCell, cell) => {
+    const sel = cell.dom().querySelector('select')
+    sel.value = customIndex
+
+    const id = cell.record.id
+
+    sel.addEventListener('change', e => setSuitabilityForUserId(id, parseInt(e.target.value)))
+  }
 
   /*
    * Handle the password button
@@ -42,14 +54,23 @@ export default function Users({users}) {
     }
   }
 
-  const hasNullPassword = (pw) => !pw
-
   useEffect(() => {
     ZingGrid.registerMethod(handlePassword, "pw")
+    ZingGrid.registerMethod(handleSuitability, "hs")
   })
 
+/*
+            <zg-column index="levelId" header="Highest Content Rating" type="custom" renderer="hs" editor="disabled">
+              <select>
+                {user?.levels.map((x, index) => <option value={x.id} key={index}>{x.name}</option>)}
+              </select>
+            </zg-column>
+
+            <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={levelOpts} />
+*/
+
 	// name:value: pairs for the type-select-options attribute below
-  const levelOpts = JSON.stringify(user?.levels?.map(x => ({name: x.name, value: x.id})))
+  const levelOpts = JSON.stringify(user?.levels.map(x => ({name: x.name, value: x.id})))
 
   return (
     <Layout>
@@ -64,7 +85,7 @@ export default function Users({users}) {
             <zg-column index="id" hidden editor="disabled"></zg-column>
             <zg-column index="username" header="User"></zg-column>
             <zg-column index="levelId" header="Highest Content Rating" type="select" type-select-options={levelOpts} />
-            <zg-column index="password" header="Password" type="custom" editor="disabled" renderer="pw">
+            <zg-column index="password" header="Password" type="custom" renderer="pw" editor="disabled">
               <div>
                 <span>No password set</span>
                 <button>Reset password</button>
@@ -89,14 +110,3 @@ export default function Users({users}) {
     </Layout>
   )
 }
-
-/*
- * Get the users table server-side.
- */
-export const getServerSideProps = withIronSessionSsr(async function ({req, res}) {
-  const users = await getUsers()
-
-  return {
-    props: {users}
-  }
-}, sessionOptions)

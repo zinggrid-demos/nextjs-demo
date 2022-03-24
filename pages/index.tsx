@@ -1,7 +1,11 @@
 import Layout from 'components/Layout'
 import Image from 'next/image'
+import Link from 'next/link'
+import useUser from 'lib/useUser'
 
 export default function Home() {
+  const {user} = useUser()
+
   return (
     <Layout>
       <h1>
@@ -15,41 +19,23 @@ export default function Home() {
       <p>
         Login with a username and password. If there are no users, you will
         create a new user and will become the administrator. Only the administrator
-        can create new users. 
+        can create new users. New users are created with no password, the password
+        they enter the first time they log in will be used for subsequent logins.
       </p>
 
       <p>
-        It uses current best practices as for authentication in the Next.js
-        ecosystem:
-        <br />
-        1. <b>no `getInitialProps`</b> to ensure every page is static
-        <br />
-        2. <b>`useUser` hook</b> together with `
-        <a href="https://swr.now.sh/">swr`</a> for data fetching
+        The administrator can add and remove TV shows to be rated. TV parental
+        guideline ratings can be set for each show. Users also have a maximum
+        content rating set. When a user logs into to rate shows, only those shows
+        with suitable content are presented.
       </p>
 
-      <h2>Features</h2>
+      <p>
+        A <Link href="/summary"><a>summary page</a></Link> shows the average ratings
+        along with charts of the percentage of users who have rated shows and each of
+        their individual ratings.
+      </p>
 
-      <ul>
-        <li>Logged in status synchronized between browser windows/tabs</li>
-        <li>Layout based on logged in status</li>
-        <li>All pages are static</li>
-        <li>Session data is signed and encrypted in a cookie</li>
-      </ul>
-
-      <h2>Steps to test the functionality:</h2>
-
-      <ol>
-        <li>Click login and enter your username and password.</li>
-        <li>
-          Click home and click profile again, notice how your session is being
-          used through a token stored in a cookie.
-        </li>
-        <li>
-          Click logout and try to go to profile again. You&apos;ll get
-          redirected to the `/login` route.
-        </li>
-      </ol>
       <style jsx>{`
         li {
           margin-bottom: 0.5rem;
