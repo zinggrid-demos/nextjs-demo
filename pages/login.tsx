@@ -8,7 +8,7 @@ import {anyAdmins} from 'lib/database'
 export default function Login({haveAdmin}) {
   // here we just check if user is already logged in and redirect to profile
   const { mutateUser } = useUser({
-    redirectTo: '/profile-sg',
+    redirectTo: '/profile',
     redirectIfFound: true,
   })
 
