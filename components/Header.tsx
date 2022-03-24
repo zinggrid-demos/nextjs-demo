@@ -26,7 +26,7 @@ export default function Header() {
           )}
           {user?.isLoggedIn === true && (
             <li>
-              <Link href="/profile-ssr">
+              <Link href="/profile">
                 <a>
                   <span
                     style={{
