@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "canvas": "^2.9.1",
     "iron-session": "latest",
     "next": "latest",
     "react": "^17.0.2",

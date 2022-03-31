@@ -61,8 +61,13 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="/summary">
-                <a>Summary</a>
+              <Link href="/summary-ssr">
+                <a>Summary SSR</a>
+              </Link>
+            </li>
+            <li>
+              <Link href="/summary-csr">
+                <a>Summary CSR</a>
               </Link>
             </li>
             </>
