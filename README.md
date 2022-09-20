@@ -1,46 +1,39 @@
-# Example application using [`iron-session`](https://github.com/vvo/iron-session)
+# Demo of using ZingGrid and ZingChart in a NextJS app
 
-<p align="center"><b>👀 Online demo at <a href="https://iron-session-example.vercel.app/">https://iron-session-example.vercel.app</a></b></p>
+This project demonstrates using both ZingGrid and ZingChart in a NextJS application.
+The application is meant to be used by a small group of people that watch TV together
+to rate a collection of shows. The first user to log in becomes the administrator,
+giving them priviledge to add other users and shows for them to rate. Each user has
+a highest content rating (from TV-Y to TV-MA) and will only be shown shows appropriate 
+for their age on their rating page.
 
----
+## Prerequisites
 
-This example creates an authentication system that uses a **signed and encrypted cookie to store session data**. It relies on [`iron-session`](https://github.com/vvo/iron-session).
+For this app you'll need `node` and `npm` installed. We recommend running the server
+locally, it will require `python` as well as `node` and `npm`.
 
-It uses current best practices for authentication in the Next.js ecosystem and replicates parts of how the Vercel dashboard is built.
+## Starting the server
 
-**Features of the example:**
+There's a simple [`tuql`](https://github.com/bradleyboy/tuql) server that supports this
+app, you should install it and run it locally. The server is [here](https://github.com/zinggrid-demos/graphql-demo-server).
+Download it, `cd` into its directory and 
 
-- [API Routes](https://nextjs.org/docs/api-routes/dynamic-api-routes) and [getServerSideProps](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props) examples.
-- The logged in status is synchronized between browser windows/tabs using **`useUser`** hook and the [`swr`](https://swr.vercel.app/).
-- The layout is based on the user's logged-in/out status.
-- The session data is signed and encrypted in a cookie (this is done automatically by `iron-session`).
+1. `npm install`
+2. `npm run reset`
+3. `npm run start`
 
-[`iron-session`](https://github.com/vvo/iron-session) also provides:
+This will start the server on port 4000. You can reset the database to its initial state with `npm run reset`.
 
-- An Express middleware, which can be used in any Node.js HTTP framework.
-- Multiple encryption keys (passwords) to allow for seamless updates or just password rotation.
-- Full TypeScript support, including session data.
+## Starting the client
 
-## Preview
+Download this repository and `cd` into the directory. Edit the file `lib/database.ts` and set the constant `database`
+to thr URL for your instance of `graphql-demo-server` (probably `http://localhost:4000/graphql`, but you may have it 
+running on a different host and port). Then run:
 
-Preview the example live on [StackBlitz](http://stackblitz.com/):
+1. `npm install`
+2. `npm run start`
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-iron-session)
-
-## Deploy your own
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-iron-session&project-name=with-iron-session&repository-name=with-iron-session)
-
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-iron-session with-iron-session-app
-# or
-yarn create next-app --example with-iron-session with-iron-session-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+The application should now be running on port 3000, view it in your browser at `localhost:3000`. Start by creating the
+first user and password, then play around adding new users, assigning them a highest content rating, and setting ratings
+for each of the users. Note that the rating page has a `randomize` button you can use to assign a random rating to each
+of the shows displayed, this is just to avoid the tedium of having to enter ratings for each user during testing.
