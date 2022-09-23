@@ -22,6 +22,7 @@ Download it, `cd` into its directory and
 2. `npm run reset`
 3. `npm run start`
 
+(See the README for the server for more details.)
 This will start the server on port 4000. You can reset the database to its initial state with `npm run reset`.
 
 ## Starting the client
@@ -31,7 +32,7 @@ to thr URL for your instance of `graphql-demo-server` (probably `http://localhos
 running on a different host and port). Then run:
 
 1. `npm install`
-2. `npm run start`
+2. `npm run dev`
 
 The application should now be running on port 3000, view it in your browser at `localhost:3000`. Start by creating the
 first user and password, then play around adding new users, assigning them a highest content rating, and setting ratings
