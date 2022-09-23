@@ -5,7 +5,7 @@
 import type {User} from '../pages/api/user'
 
 export const database: string = 'http://localhost:4000/graphql' // URL for the graphql server 
-//export const database: string = 'http://maya:4000/graphql'    // URL for the graphql server in author's dev environment
+//export const database: string = 'http://maya:4000/graphql'    // URL for the graphql server in the author's dev environment
 
 /*
  * Query to retrieve all users for the users table

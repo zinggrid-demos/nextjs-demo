@@ -1,13 +1,7 @@
 /* 
  * Summary of ratings, visible to all users.
  *
- * This component can use server-side rendering or client-side
- * rendering, but we were unable to make it switch between the two.
- * Move the comments marked SSR and CSR to select where you want
- * the rendering to occur. Note that the SSR version will not have
- * tooltips.
- * 
- * For CSR, the configurations are still computed server-side.
+ * This is the server-side rendered (SSR) version.
  */
 import Layout from 'components/Layout'
 import {withIronSessionSsr} from 'iron-session/next'

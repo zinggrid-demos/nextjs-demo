@@ -8,7 +8,7 @@ import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 
-import {remoteDB, query_readShows, query_createShow, query_updateRowShow, query_updateCellShow, query_deleteShow,
+import {database, query_readShows, query_createShow, query_updateRowShow, query_updateCellShow, query_deleteShow,
   setSuitabilityForShowId} from 'lib/database'
 
 export default function Shows() {
@@ -35,7 +35,7 @@ export default function Shows() {
             <zg-column index="seasons" header="# of Seasons" type="number"></zg-column>
             <zg-column index="levelId" header="Content Rating" type="select" type-select-options={levelOpts} />
           </zg-colgroup>
-          <zg-data src={remoteDB} adapter="graphql">
+          <zg-data src={database} adapter="graphql">
             <zg-param name="recordPath" value="data.shows"></zg-param>
             <zg-param name="readBody" value={JSON.stringify({query: query_readShows})}></zg-param>
             <zg-param name="createBody" value={JSON.stringify({query: query_createShow})}></zg-param>

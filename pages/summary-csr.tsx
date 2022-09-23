@@ -1,7 +1,7 @@
 /* 
  * Summary of ratings, visible to all users.
  *
- * This sis the client-side rendered (CSR) version.
+ * This is the client-side rendered (CSR) version.
  */
 import Layout from 'components/Layout'
 import useUser from 'lib/useUser'

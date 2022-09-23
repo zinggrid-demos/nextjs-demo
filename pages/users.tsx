@@ -11,7 +11,7 @@ import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 
-import {remoteDB, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
+import {database, query_readUsers, query_createUser, query_updateRowUser, query_updateCellUser, query_deleteUser,
   getUsers, setPasswordForUserId, setSuitabilityForUserId} from 'lib/database'
 
 
@@ -71,7 +71,7 @@ export default function Users({users}) {
               </div>
             </zg-column>
           </zg-colgroup>
-          <zg-data src={remoteDB} adapter="graphql">
+          <zg-data src={database} adapter="graphql">
             <zg-param name="recordPath" value="data.users"></zg-param>
             <zg-param name="readBody" value={JSON.stringify({query: query_readUsers})}></zg-param>
             <zg-param name="createBody" value={JSON.stringify({query: query_createUser})}></zg-param>
