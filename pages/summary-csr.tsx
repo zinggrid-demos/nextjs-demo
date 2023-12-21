@@ -22,7 +22,9 @@ export default function Summary() {
     setConfig2(props.config2)
   }
 
-  useEffect(() => getConfigs(), [])
+  useEffect(() => {
+    getConfigs()
+  }, [])
 
   return (
     <Layout>

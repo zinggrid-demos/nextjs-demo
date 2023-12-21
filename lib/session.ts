@@ -1,8 +1,8 @@
 // this file is a wrapper with defaults to be used in both API routes and `getServerSideProps` functions
-import type { IronSessionOptions } from 'iron-session'
+import type { SessionOptions } from 'iron-session'
 import type { User } from 'pages/api/user'
 
-export const sessionOptions: IronSessionOptions = {
+export const sessionOptions: SessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
   cookieName: 'zinggrid-demos/nextjs-demo',
   // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)

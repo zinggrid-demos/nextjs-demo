@@ -3,10 +3,9 @@
  */
 import React from 'react'
 import Layout from 'components/Layout'
-import { withIronSessionSsr } from 'iron-session/next'
-import { sessionOptions } from 'lib/session'
+import { getIronSession } from 'iron-session';
+import {sessionOptions} from 'lib/session'
 import { User } from 'pages/api/user'
-
 import { InferGetServerSidePropsType } from 'next'
 
 export default function SsrProfile({
@@ -42,11 +41,9 @@ export default function SsrProfile({
 /*
  * Retrieve the props for this component, server-side.
  */
-export const getServerSideProps = withIronSessionSsr(async function ({
-  req,
-  res,
-}) {
-  const user = req.session.user
+export const getServerSideProps = async function({req, res}) {
+  const session = await getIronSession(req, res, sessionOptions)
+  const user = session.user
 
   if (user === undefined) {
     res.setHeader('location', '/login')
@@ -62,5 +59,4 @@ export const getServerSideProps = withIronSessionSsr(async function ({
   return {
     props: {user},
   }
-},
-sessionOptions)
+}

@@ -4,8 +4,6 @@
  * chart.
  */
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
-import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRouter} from 'next/router'
 import {useRef, useEffect, useState} from 'react'
@@ -87,7 +85,9 @@ export default function Ratings() {
     setShows(await getShowsAndRatingsForUsername(username))
   }
 
-  useEffect(() => getData(username))
+  useEffect(() => {
+    getData(username)
+  })
 
   /*
    * Called when a drag is finished, store the ratings in the database.

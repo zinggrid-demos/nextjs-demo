@@ -3,10 +3,7 @@
  */
 import React from 'react'
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
-import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
-import ZingGrid from 'zinggrid'
 
 import {database, query_readShows, query_createShow, query_updateRowShow, query_updateCellShow, query_deleteShow,
   setSuitabilityForShowId} from 'lib/database'

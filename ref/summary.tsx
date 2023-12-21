@@ -2,7 +2,7 @@
  * Summary of ratings, visible to all users.
  */
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
+import {getIronSession} from 'iron-session'
 import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRef, useEffect, useState} from 'react'
@@ -322,7 +322,7 @@ function radar(shows, series, addons) {
 /* 
  * Get the data needed to render this page.
  */
-export const SSRgetServerSideProps = withIronSessionSsr(async function ({req, res}) {
+export const SSRgetServerSideProps = async function (req, res) {
   const props = {
     hasRated: await getHasRated(),
     avgRatings: await getAvgRatings(),
@@ -330,4 +330,4 @@ export const SSRgetServerSideProps = withIronSessionSsr(async function ({req, re
   }
 
   return {props}
-}, sessionOptions)
+}

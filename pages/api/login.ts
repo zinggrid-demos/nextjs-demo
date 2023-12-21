@@ -1,11 +1,11 @@
 import type { User } from './user'
 
-import {withIronSessionApiRoute} from 'iron-session/next'
+import {getIronSession} from 'iron-session'
 import {sessionOptions}  from 'lib/session'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {anyAdmins, getUserByName, createAdmin, setPasswordForUserId} from 'lib/database'
 
-export default withIronSessionApiRoute(loginRoute, sessionOptions)
+export default loginRoute
 
 /*
  * Attempt to log in. We first check if there are any admins. 
@@ -20,6 +20,8 @@ export default withIronSessionApiRoute(loginRoute, sessionOptions)
  */
 async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
   try {
+    let session = await getIronSession(req, res, sessionOptions)
+
     const haveAdmin = await anyAdmins()
     const {username, password} = await req.body
     let user
@@ -41,14 +43,14 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
       }
     }
 
-    req.session.user = {
+    session.user = {
       isLoggedIn: true,
       username: username,
       suitability: user.suitability,
       admin: !haveAdmin || user.admin === 1
     }
 
-    await req.session.save()
+    await session.save()
     res.json(user)
   } catch (error) {
     res.status(500).json({ message: (error as Error).message })

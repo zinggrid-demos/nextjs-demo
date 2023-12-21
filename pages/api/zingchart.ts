@@ -1,9 +1,7 @@
-import {withIronSessionApiRoute} from 'iron-session/next'
-import {sessionOptions}  from 'lib/session'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {zingchart} from 'zingchart/zingchart-nodejs.min'
 
-export default withIronSessionApiRoute(zingchartRoute, sessionOptions)
+export default zingchartRoute
 
 export type ZCResponse = {
   filename: string

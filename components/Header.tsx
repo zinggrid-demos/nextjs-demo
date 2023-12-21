@@ -13,62 +13,46 @@ export default function Header() {
       <nav>
         <ul>
           <li>
-            <Link href="/">
-              <a>Home</a>
-            </Link>
+            <Link href="/">Home</Link>
           </li>
           {(!user || user?.isLoggedIn === false) && (
             <li>
-              <Link href="/login">
-                <a>Login</a>
-              </Link>
+              <Link href="/login">Login</Link>
             </li>
           )}
           {user?.isLoggedIn === true && (
             <li>
               <Link href="/profile">
-                <a>
-                  <span
-                    style={{
-                      marginRight: '.3em',
-                      verticalAlign: 'middle',
-                      overflow: 'hidden',
-                    }}
-                  >
-                  {user.username}
-                  </span>
-                </a>
+                <span
+                  style={{
+                    marginRight: '.3em',
+                    verticalAlign: 'middle',
+                    overflow: 'hidden',
+                  }}
+                >
+                {user.username}
+                </span>
               </Link>
             </li>
           )}
           {user?.isLoggedIn === true && user?.admin == 1 && (
             <li>
-              <Link href="/users">
-                <a>Users</a>
-              </Link>
+              <Link href="/users">Users</Link>
             </li>
           )}
           {user?.isLoggedIn === true && (
             <>
             <li>
-              <Link href="/shows">
-                <a>Shows</a>
-              </Link>
+              <Link href="/shows">Shows</Link>
             </li>
             <li>
-              <Link href={'/ratings/' + user?.username}>
-                <a>Your Ratings</a>
-              </Link>
+              <Link href={'/ratings/' + user?.username}>Your Ratings</Link>
             </li>
             <li>
-              <Link href="/summary-ssr">
-                <a>Summary SSR</a>
-              </Link>
+              <Link href="/summary-ssr">Summary SSR</Link>
             </li>
             <li>
-              <Link href="/summary-csr">
-                <a>Summary CSR</a>
-              </Link>
+              <Link href="/summary-csr">Summary CSR</Link>
             </li>
             </>
           )}

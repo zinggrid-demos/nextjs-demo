@@ -4,7 +4,7 @@
  * This is the server-side rendered (SSR) version.
  */
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
+import {getIronSession} from 'iron-session'
 import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useEffect} from 'react'
@@ -29,8 +29,9 @@ export default function Summary({user, config, config2, summaryImage, detailsIma
   )
 }
 
-export const getServerSideProps = withIronSessionSsr(async function ({req, res}) {
-  const user = req.session.user
+export const getServerSideProps = async function ({req, res}) {
+  const session = await getIronSession(req, res, sessionOptions)
+  const user = session.user
   if(user === undefined) {
     res.setHeader('location', '/login')
     res.statusCode = 302
@@ -53,4 +54,4 @@ export const getServerSideProps = withIronSessionSsr(async function ({req, res})
       user, config, config2, summaryImage, detailsImage
     }
   }
-}, sessionOptions)
+}

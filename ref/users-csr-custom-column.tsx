@@ -6,8 +6,6 @@
  */
 import React, {useState, useEffect}  from 'react'
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
-import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import ZingGrid from 'zinggrid'
 

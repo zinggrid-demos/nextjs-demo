@@ -1,4 +1,4 @@
-import { withIronSessionApiRoute } from 'iron-session/next'
+import { getIronSession } from 'iron-session'
 import { sessionOptions } from 'lib/session'
 import { Octokit } from 'octokit'
 
@@ -10,10 +10,12 @@ export type Events =
 
 const octokit = new Octokit()
 
-export default withIronSessionApiRoute(eventsRoute, sessionOptions)
+export default eventsRoute;
 
 async function eventsRoute(req: NextApiRequest, res: NextApiResponse<Events>) {
-  const user = req.session.user
+  const session = await getIronSession(req, res, sessionOptions)
+
+  const user = session.user
 
   if (!user || user.isLoggedIn === false) {
     res.status(401).end()

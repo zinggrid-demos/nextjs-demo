@@ -31,7 +31,7 @@ export default function Home() {
       </p>
 
       <p>
-        A <Link href="/summary"><a>summary page</a></Link> shows the average ratings
+        A <Link href="/summary">summary page</Link> shows the average ratings
         along with charts of the percentage of users who have rated shows and each of
         their individual ratings.
       </p>

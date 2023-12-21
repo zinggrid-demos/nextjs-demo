@@ -1,4 +1,4 @@
-import {withIronSessionApiRoute} from 'iron-session/next'
+import {getIronSession} from 'iron-session'
 import {sessionOptions} from 'lib/session'
 import {NextApiRequest, NextApiResponse} from 'next'
 import {getUserByName, getSuitabilityLevels} from 'lib/database'
@@ -12,16 +12,18 @@ export type User = {
   levels: unknown
 }
 
-export default withIronSessionApiRoute(userRoute, sessionOptions)
+export default userRoute
 
 /*
  * We obtain both the user info and the levels, since the levels are
  * static and needed everywhere the user data is needed.
  */
 async function userRoute(req: NextApiRequest, res: NextApiResponse<User>) {
+  const session = await getIronSession(req, res, sessionOptions)
+
   const levels = await getSuitabilityLevels()
-  if (req.session.user) {
-    const u = await getUserByName(req.session.user.username)
+  if (session.user) {
+    const u = await getUserByName(session.user.username)
     if(u) {
       res.json({
         ...u,
@@ -30,7 +32,7 @@ async function userRoute(req: NextApiRequest, res: NextApiResponse<User>) {
       })
     } else {
       res.json({
-        ...req.session.user,
+        ...session.user,
         isLoggedIn: true,
         levels
       })

@@ -6,8 +6,6 @@
  * SSR version, not working
  */
 import Layout from 'components/Layout'
-import {withIronSessionSsr} from 'iron-session/next'
-import {sessionOptions} from 'lib/session'
 import useUser from 'lib/useUser'
 import {useRouter} from 'next/router'
 import {useRef, useEffect, useState} from 'react'
